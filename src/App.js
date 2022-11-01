@@ -1,24 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import algoliasearch from "algoliasearch/lite";
+import {
+  InstantSearch,
+  SearchBox,
+  Hits,
+  RangeInput,
+} from "react-instantsearch-hooks-web";
+import MyComponent from "./MyComponent";
+
+const searchClient = algoliasearch(
+);
+
+
+const routing = {
+  stateMapping:{
+    stateToRoute(uiState){
+      const indexUiState = uiState['test_index'];
+      console.log(indexUiState.range);
+      return {
+        query: indexUiState.query,
+        min_f: indexUiState?.range?.followers?.min,
+        max_f: indexUiState?.range?.followers?.max,
+      };
+    },
+    routeToState(routeState){
+      // return {
+      //   'test_index': {
+      //     query: routeState.query,
+      //     range: {
+      //       followers: {min:routeState.min_f,max:routeState.max_f}
+      //     }
+      //   },
+      // }
+    }
+  }
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <InstantSearch
+      searchClient={searchClient}
+      indexName="test_index"
+      routing={routing}
+    >
+      <SearchBox />
+      <RangeInput attribute="followers" />
+      <Hits
+        hitComponent={({ hit: { name, company, followers } }) => (
+          <h2>
+            {name}: {company}. <u>{followers}</u>
+          </h2>
+        )}
+      />
+      {/* <MyComponent /> */}
+    </InstantSearch>
   );
 }
 
